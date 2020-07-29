@@ -1,0 +1,34 @@
+---
+title: "example"
+author: "Cole Arendt"
+date: "7/21/2020"
+output: html_document
+params:
+  pin_name:
+    value: {{TEMPLATE}}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+pins::board_register_rsconnect(
+  server = Sys.getenv("CONNECT_SERVER"),
+  api_key = Sys.getenv("CONNECT_API_KEY")
+  )
+```
+
+## Example Report
+
+This report reads a pin.
+
+```{r get_pin}
+raw_dat <- pins::pin_get(params$pin_name, board = "rsconnect")
+
+nrow(raw_dat)
+```
+
+## And then prints it
+
+```{r print_data}
+raw_dat
+```
