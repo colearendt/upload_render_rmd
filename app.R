@@ -53,7 +53,7 @@ deploy_and_write_log <- function(client, bundle, app_name, title, log_file, acce
                 )
         }
     )
-    if (!is.null(user_guid)) {
+    if (!is.null(user_guid) && user_guid != client$GET("/me")$guid) {
         tryCatch({
           myapp %>%
             connectapi::acl_add_collaborator(user_guid)
@@ -187,7 +187,7 @@ server <- function(input, output, session) {
         savedDataInfo(pins::pin_info(pin_name))
 
         # give the user access
-        if (!is.null(user_guid())) {
+        if (!is.null(user_guid()) && user_guid() != client$GET("/me")$guid) {
             tryCatch({
               theapp <- content_item(client, savedDataInfo()$guid)
               # could use acl_add_collaborator too
