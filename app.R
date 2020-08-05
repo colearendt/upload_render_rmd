@@ -189,6 +189,7 @@ server <- function(input, output, session) {
         # give the user access
         if (!is.null(user_guid())) {
             tryCatch({
+                message("running trycatch")
               content_item(client, savedDataInfo()$guid) %>%
                 # could use acl_add_collaborator too
                 connectapi::acl_add_viewer(user_guid())
