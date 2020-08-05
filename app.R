@@ -54,8 +54,12 @@ deploy_and_write_log <- function(client, bundle, app_name, title, log_file, acce
         }
     )
     if (!is.null(user_guid)) {
-        myapp %>%
+        tryCatch({
+          myapp %>%
             connectapi::acl_add_collaborator(user_guid)
+        }, error = function(e) {
+            message(e)
+        })
     }
 
     connectapi::poll_task(
@@ -184,9 +188,13 @@ server <- function(input, output, session) {
 
         # give the user access
         if (!is.null(user_guid())) {
-            content_item(client, savedDataInfo()$guid) %>%
+            tryCatch({
+              content_item(client, savedDataInfo()$guid) %>%
                 # could use acl_add_collaborator too
                 connectapi::acl_add_viewer(user_guid())
+            }, error = function(e) {
+                message(e)
+            })
         }
 
         state("Save complete")
