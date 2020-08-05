@@ -37,7 +37,7 @@ bundle_helper <- function(rmd_name, pin_name) {
 }
 
 # deploys the app and tails its log into a file
-deploy_and_write_log <- function(client, bundle, app_name, title, log_file, access_type = "logged_in", user_guid = NULL) {
+deploy_and_write_log <- function(client, bundle, app_name, title, log_file, access_type = "acl", user_guid = NULL) {
     myapp <- connectapi::deploy(
         client, bundle,
         name = app_name,
@@ -56,7 +56,8 @@ deploy_and_write_log <- function(client, bundle, app_name, title, log_file, acce
     if (!is.null(user_guid) && user_guid != client$GET("/me")$guid) {
         tryCatch({
           myapp %>%
-            connectapi::acl_add_collaborator(user_guid)
+            # could also make this acl_add_collaborator
+            connectapi::acl_add_viewer(user_guid)
         }, error = function(e) {
             message(e)
         })
@@ -69,6 +70,7 @@ deploy_and_write_log <- function(client, bundle, app_name, title, log_file, acce
         }
         )
 
+    # will parse this later to get the URL
     cat(">> DEPLOYMENT COMPLETE\n", file = log_file, append = TRUE)
     cat(">> \n", file = log_file, append = TRUE)
     cat(glue::glue(">> {myapp$get_dashboard_url()}"), "\n", file = log_file, append = TRUE)
@@ -239,7 +241,6 @@ server <- function(input, output, session) {
         cat(deploymentProcess()$read_output_lines(), file = logFile(), append = TRUE, sep = "\n")
     })
 
-    # TODO: allow user to poll the logs
     all_log_data <- reactiveVal(value = NULL, label = "log_data")
 
     log_output <- reactive({
